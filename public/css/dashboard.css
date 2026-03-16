@@ -1,0 +1,177 @@
+/* Menggunakan font Inter khas TailAdmin */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --sidebar-bg: #1C2434;
+    --sidebar-hover: #333A48;
+    --sidebar-text: #8A99AF;
+    --main-bg: #F1F5F9;
+    --card-bg: #FFFFFF;
+    --primary: #3C50E0;
+    --text-dark: #1C2434;
+    --text-muted: #64748B;
+    --border-color: #E2E8F0;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--main-bg);
+    color: var(--text-dark);
+}
+
+/* Layout Utama */
+.flex-h-screen {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease-in-out;
+}
+
+.sidebar-header {
+    padding: 24px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    border-bottom: 1px solid var(--sidebar-hover);
+    text-align: center;
+}
+
+.sidebar-nav {
+    padding: 20px 15px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.nav-item {
+    display: block;
+    padding: 12px 20px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-item:hover, .nav-item.active {
+    background-color: var(--sidebar-hover);
+    color: #fff;
+}
+
+/* Area Konten Kanan */
+.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Header Atas */
+.header {
+    background-color: var(--card-bg);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    z-index: 10;
+}
+
+/* Area Utama (Tempat Livewire di-render) */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+/* Komponen Standar (Card, Button, Badge) */
+.card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border: 1px solid var(--border-color);
+}
+
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-pending { background: #FDF6B2; color: #C27803; }
+.badge-cooking { background: #E1EFFE; color: #1E429F; }
+.badge-ready { background: #DEF7EC; color: #03543F; }
+/* --- ANIMASI SIDEBAR --- */
+.sidebar {
+    /* Tambahkan transition agar animasinya halus saat mengecil */
+    transition: width 0.3s ease-in-out;
+    overflow-x: hidden; /* Mencegah teks meluber keluar saat mengecil */
+}
+
+/* Class ini akan ditambahkan oleh JavaScript saat tombol diklik */
+.sidebar.collapsed {
+    width: 80px; /* Lebar saat mengecil */
+}
+
+/* Sembunyikan teks saat sidebar mengecil */
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .menu-label {
+    display: none;
+}
+
+/* Sembunyikan teks logo/judul aplikasi saat mengecil */
+.sidebar.collapsed .sidebar-title {
+    display: none;
+}
+
+/* Rapikan posisi item navigasi agar sejajar dengan ikon */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    white-space: nowrap; /* Mencegah teks turun ke baris baru */
+}
+
+.nav-icon {
+    font-size: 20px;
+    min-width: 24px;
+    text-align: center;
+}
+
+/* Tombol Hamburger (Garis 3) di Header */
+.hamburger-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-dark);
+    margin-right: 15px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+}
+.hamburger-btn:hover {
+    background: #E2E8F0;
+}
+
+/* --- FOOTER --- */
+.footer {
+    background-color: var(--card-bg);
+    padding: 15px 30px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+}
