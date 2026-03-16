@@ -34,6 +34,9 @@
             <span class="nav-icon">💰</span>
             <span class="nav-text">Kasir (POS)</span>
         </a>
+        <a href="/order-history" class="nav-item {{ request()->is('order-history') ? 'active' : '' }}">
+            <span class="nav-icon">📜</span><span class="nav-text">Riwayat Order</span>
+        </a>
         @endif
     </nav>
 </aside>

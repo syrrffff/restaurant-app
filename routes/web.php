@@ -10,6 +10,7 @@ use App\Livewire\Auth\Login;
 use Illuminate\Support\Facades\Auth;
 use App\Livewire\AdminDashboard;
 use App\Livewire\AdminTable;
+use App\Livewire\OrderHistory;
 use App\Models\Order;
 
 
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function () {
     // Kasir & Admin bisa buka layar kasir
     Route::middleware('role:cashier')->group(function() {
         Route::get('/cashier', CashierDashboard::class);
+        Route::get('/order-history', OrderHistory::class)->name('order.history');
     });
 
     Route::get('/cashier/print/{order}', function (Order $order) {

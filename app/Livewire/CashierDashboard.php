@@ -9,6 +9,7 @@ use App\Models\Menu;
 use App\Models\Category;
 use App\Models\MenuOptionItem;
 use App\Models\OrderItemOption;
+use App\Models\OrderLog;
 use App\Traits\WithConfirmation;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -103,7 +104,7 @@ class CashierDashboard extends Component
                     session()->flash('success', 'Menu berhasil dihapus!');
                 }
             }
-
+            \App\Livewire\OrderHistory::logAction($order->id, 'deleted', "Menghapus item pesanan.");
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
@@ -291,7 +292,7 @@ class CashierDashboard extends Component
                     'tax_amount' => $newTax,
                     'total_amount' => $newSubtotal + $newTax
                 ]);
-
+                \App\Livewire\OrderHistory::logAction($order->id, 'edited', "Mengedit item menu {$this->selectedMenu->name}.");
                 DB::commit();
                 $this->loadSelectedOrder();
                 session()->flash('success', 'Perubahan menu berhasil disimpan!');
