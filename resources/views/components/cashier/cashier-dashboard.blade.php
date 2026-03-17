@@ -32,7 +32,7 @@
                 <div>
                     <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-4">
                         <h3 class="text-xl font-bold text-gray-800 m-0 truncate pr-2">
-                            {{ $order->order_type == 'takeaway' ? '🥡 ' . ($order->customer_name ?? 'Takeaway') : 'Meja ' . ($order->table->table_number ?? '?') }}
+                            {{ $order->order_type == 'takeaway' ? '🥡 ' . ($order->customer_name ?? 'Takeaway') : ($order->table->table_number ?? '?') }}
                         </h3>
                         <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono font-bold">{{ $order->invoice_number }}</span>
                     </div>

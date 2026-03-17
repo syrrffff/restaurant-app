@@ -13,11 +13,13 @@ use App\Livewire\AdminTable;
 use App\Livewire\OrderHistory;
 use App\Models\Order;
 use App\Livewire\AdminUsers;
+use App\Livewire\LandingPage;
 
 
 // --- RUTE PUBLIK (Bisa diakses tanpa login) ---
 Route::get('/scan/{qr_token}', CustomerMenu::class);
 Route::get('/login', Login::class)->name('login');
+Route::get('/', LandingPage::class)->name('home');
 
 // --- RUTE TERLINDUNGI ---
 Route::middleware('auth')->group(function () {

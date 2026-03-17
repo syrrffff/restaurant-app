@@ -25,7 +25,7 @@
 
         <div class="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
             <h3 class="text-lg font-bold text-gray-800 m-0 truncate">
-                {{ $order->order_type == 'takeaway' ? '🥡 ' . ($order->customer_name ?? 'Takeaway') : 'Meja ' . ($order->table->table_number ?? '?') }}
+                {{ $order->order_type == 'takeaway' ? '🥡 ' . ($order->customer_name ?? 'Takeaway') : ($order->table->table_number ?? '?') }}
             </h3>
             <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide {{ $badgeBg }}">
                 {{ $isPending ? 'Ada Pesanan Baru' : 'Sedang Dimasak' }}
