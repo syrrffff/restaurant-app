@@ -23,7 +23,7 @@ class CashierDashboard extends Component
     // --- State Takeaway ---
     public $isTakeawayModalOpen = false;
     public $takeawayCart = [];
-    public $customerName = '';
+    public $customerName = "";
 
     // --- State Detail Order ---
     public $isDetailModalOpen = false;
@@ -32,19 +32,22 @@ class CashierDashboard extends Component
 
     // --- State Modal Opsi / Varian ---
     public $isOptionModalOpen = false;
-    public $editMode = '';
+    public $editMode = "";
     public $editingTargetId = null;
     public $selectedMenu = null;
     public $quantity = 1;
     public $selectedOptions = [];
-    public $notes = '';
+    public $notes = "";
 
     public function mount()
     {
-        $this->categoriesList = Category::where('is_active', true)
-            ->with(['menus' => function($query) {
-                $query->where('is_available', true)->with('options.items');
-            }])->get();
+        $this->categoriesList = Category::where("is_active", true)
+            ->with([
+                "menus" => function ($query) {
+                    $query->where("is_available", true)->with("options.items");
+                },
+            ])
+            ->get();
     }
 
     // ==========================================
@@ -66,7 +69,11 @@ class CashierDashboard extends Component
 
     public function loadSelectedOrder()
     {
-        $this->selectedOrder = Order::with('table', 'items.menu.options.items', 'items.selectedOptions')->find($this->selectedOrderId);
+        $this->selectedOrder = Order::with(
+            "table",
+            "items.menu.options.items",
+            "items.selectedOptions",
+        )->find($this->selectedOrderId);
     }
 
     public function removeOrderItem($itemId)
@@ -79,36 +86,55 @@ class CashierDashboard extends Component
                 $orderId = $orderItem->order_id;
                 $order = Order::find($orderId);
 
-                OrderItemOption::where('order_item_id', $orderItem->id)->delete();
+                OrderItemOption::where(
+                    "order_item_id",
+                    $orderItem->id,
+                )->delete();
                 $orderItem->delete();
 
-                $remainingItems = OrderItem::where('order_id', $order->id)->count();
+                $remainingItems = OrderItem::where(
+                    "order_id",
+                    $order->id,
+                )->count();
 
                 if ($remainingItems == 0) {
                     if ($order->table) {
-                        $order->table->update(['status' => 'available', 'qr_token' => Str::random(10)]);
+                        $order->table->update([
+                            "status" => "available",
+                            "qr_token" => Str::random(10),
+                        ]);
                     }
                     $order->delete();
                     $this->closeDetailModal();
-                    session()->flash('success', 'Pesanan dibatalkan karena semua menu dihapus.');
+                    session()->flash(
+                        "success",
+                        "Pesanan dibatalkan karena semua menu dihapus.",
+                    );
                 } else {
-                    $newSubtotal = OrderItem::where('order_id', $order->id)->sum('total_price');
-                    $newTax = $newSubtotal * 0.10;
+                    $newSubtotal = OrderItem::where(
+                        "order_id",
+                        $order->id,
+                    )->sum("total_price");
+                    $newTax = $newSubtotal * 0.1;
                     $order->update([
-                        'subtotal' => $newSubtotal,
-                        'tax_amount' => $newTax,
-                        'total_amount' => $newSubtotal + $newTax
+                        "subtotal" => $newSubtotal,
+                        "tax_amount" => $newTax,
+                        "total_amount" => $newSubtotal + $newTax,
                     ]);
 
                     $this->loadSelectedOrder();
-                    session()->flash('success', 'Menu berhasil dihapus!');
+                    session()->flash("success", "Menu berhasil dihapus!");
                 }
             }
-            \App\Livewire\OrderHistory::logAction($order->id, 'deleted', "Menghapus item pesanan.");
+            \App\Livewire\OrderHistory::logAction(
+                $order->id,
+                "deleted",
+                "Menghapus item pesanan.",
+            );
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
-            session()->flash('error', 'Gagal menghapus: ' . $e->getMessage());
+            session()->flash("error", "Gagal menghapus: " . $e->getMessage());
         }
     }
 
@@ -118,7 +144,7 @@ class CashierDashboard extends Component
     public function openTakeawayModal()
     {
         $this->takeawayCart = [];
-        $this->customerName = '';
+        $this->customerName = "";
         $this->isTakeawayModalOpen = true;
     }
 
@@ -138,33 +164,39 @@ class CashierDashboard extends Component
     // ==========================================
     public function openOptionModal($menuId, $mode, $targetId = null)
     {
-        $this->selectedMenu = Menu::with('options.items')->find($menuId);
+        $this->selectedMenu = Menu::with("options.items")->find($menuId);
         $this->editMode = $mode;
         $this->editingTargetId = $targetId;
         $this->quantity = 1;
         $this->selectedOptions = [];
-        $this->notes = '';
+        $this->notes = "";
 
-        if ($mode == 'edit_takeaway') {
+        if ($mode == "edit_takeaway") {
             $cartItem = $this->takeawayCart[$targetId];
-            $this->quantity = $cartItem['quantity'];
-            $this->selectedOptions = $cartItem['raw_options'] ?? [];
-            $this->notes = $cartItem['notes'] ?? '';
-
-        } elseif ($mode == 'edit_existing') {
-            $orderItem = OrderItem::with('selectedOptions')->find($targetId);
+            $this->quantity = $cartItem["quantity"];
+            $this->selectedOptions = $cartItem["raw_options"] ?? [];
+            $this->notes = $cartItem["notes"] ?? "";
+        } elseif ($mode == "edit_existing") {
+            $orderItem = OrderItem::with("selectedOptions")->find($targetId);
             $this->quantity = $orderItem->quantity;
-            $this->notes = $orderItem->notes ?? '';
+            $this->notes = $orderItem->notes ?? "";
 
-            $savedOptionItemIds = $orderItem->selectedOptions->pluck('menu_option_item_id')->toArray();
+            $savedOptionItemIds = $orderItem->selectedOptions
+                ->pluck("menu_option_item_id")
+                ->toArray();
 
             foreach ($this->selectedMenu->options as $option) {
-                $groupItemIds = $option->items->pluck('id')->toArray();
-                $intersect = array_intersect($savedOptionItemIds, $groupItemIds);
+                $groupItemIds = $option->items->pluck("id")->toArray();
+                $intersect = array_intersect(
+                    $savedOptionItemIds,
+                    $groupItemIds,
+                );
 
                 if (!empty($intersect)) {
                     if ($option->max_choices == 1) {
-                        $this->selectedOptions[$option->id] = (string) reset($intersect);
+                        $this->selectedOptions[$option->id] = (string) reset(
+                            $intersect,
+                        );
                     } else {
                         foreach ($intersect as $val) {
                             $this->selectedOptions[$option->id][$val] = true;
@@ -210,7 +242,10 @@ class CashierDashboard extends Component
                 }
 
                 if (!$hasSelection) {
-                    session()->flash('option_error', "Pilihan '{$option->name}' wajib diisi!");
+                    session()->flash(
+                        "option_error",
+                        "Pilihan '{$option->name}' wajib diisi!",
+                    );
                     return; // Hentikan proses jika ada yang kosong
                 }
             }
@@ -229,7 +264,11 @@ class CashierDashboard extends Component
                         $item = MenuOptionItem::find($itemId);
                         if ($item) {
                             $totalAdditionalPrice += $item->additional_price;
-                            $selectedOptionsData[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->additional_price];
+                            $selectedOptionsData[] = [
+                                "id" => $item->id,
+                                "name" => $item->name,
+                                "price" => $item->additional_price,
+                            ];
                         }
                     }
                 }
@@ -237,7 +276,11 @@ class CashierDashboard extends Component
                 $item = MenuOptionItem::find($selectedValue);
                 if ($item) {
                     $totalAdditionalPrice += $item->additional_price;
-                    $selectedOptionsData[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->additional_price];
+                    $selectedOptionsData[] = [
+                        "id" => $item->id,
+                        "name" => $item->name,
+                        "price" => $item->additional_price,
+                    ];
                 }
             }
         }
@@ -245,101 +288,134 @@ class CashierDashboard extends Component
         $pricePerItem = $this->selectedMenu->base_price + $totalAdditionalPrice;
         $totalPrice = $pricePerItem * $this->quantity;
 
-        if ($this->editMode == 'new_takeaway' || $this->editMode == 'edit_takeaway') {
+        if (
+            $this->editMode == "new_takeaway" ||
+            $this->editMode == "edit_takeaway"
+        ) {
             $cartItem = [
-                'menu_id' => $this->selectedMenu->id,
-                'name' => $this->selectedMenu->name,
-                'quantity' => $this->quantity,
-                'base_price' => $this->selectedMenu->base_price,
-                'total_price' => $totalPrice,
-                'options' => $selectedOptionsData,
-                'raw_options' => $this->selectedOptions,
-                'notes' => $this->notes
+                "menu_id" => $this->selectedMenu->id,
+                "name" => $this->selectedMenu->name,
+                "quantity" => $this->quantity,
+                "base_price" => $this->selectedMenu->base_price,
+                "total_price" => $totalPrice,
+                "options" => $selectedOptionsData,
+                "raw_options" => $this->selectedOptions,
+                "notes" => $this->notes,
             ];
 
-            if ($this->editMode == 'edit_takeaway') {
+            if ($this->editMode == "edit_takeaway") {
                 $this->takeawayCart[$this->editingTargetId] = $cartItem;
             } else {
                 $this->takeawayCart[] = $cartItem;
             }
-        }
-        elseif ($this->editMode == 'edit_existing') {
+        } elseif ($this->editMode == "edit_existing") {
             try {
                 DB::beginTransaction();
 
                 $orderItem = OrderItem::find($this->editingTargetId);
                 $orderItem->update([
-                    'quantity' => $this->quantity,
-                    'total_price' => $totalPrice,
-                    'notes' => $this->notes,
+                    "quantity" => $this->quantity,
+                    "total_price" => $totalPrice,
+                    "notes" => $this->notes,
                 ]);
 
-                OrderItemOption::where('order_item_id', $orderItem->id)->delete();
+                OrderItemOption::where(
+                    "order_item_id",
+                    $orderItem->id,
+                )->delete();
                 foreach ($selectedOptionsData as $opt) {
                     OrderItemOption::create([
-                        'order_item_id' => $orderItem->id,
-                        'menu_option_item_id' => $opt['id'],
-                        'option_name' => $opt['name'],
-                        'additional_price' => $opt['price'],
+                        "order_item_id" => $orderItem->id,
+                        "menu_option_item_id" => $opt["id"],
+                        "option_name" => $opt["name"],
+                        "additional_price" => $opt["price"],
                     ]);
                 }
 
                 $order = Order::find($orderItem->order_id);
-                $newSubtotal = OrderItem::where('order_id', $order->id)->sum('total_price');
-                $newTax = $newSubtotal * 0.10;
+                $newSubtotal = OrderItem::where("order_id", $order->id)->sum(
+                    "total_price",
+                );
+                $newTax = $newSubtotal * 0.1;
                 $order->update([
-                    'subtotal' => $newSubtotal,
-                    'tax_amount' => $newTax,
-                    'total_amount' => $newSubtotal + $newTax
+                    "subtotal" => $newSubtotal,
+                    "tax_amount" => $newTax,
+                    "total_amount" => $newSubtotal + $newTax,
                 ]);
-                \App\Livewire\OrderHistory::logAction($order->id, 'edited', "Mengedit item menu {$this->selectedMenu->name}.");
+                \App\Livewire\OrderHistory::logAction(
+                    $order->id,
+                    "edited",
+                    "Mengedit item menu {$this->selectedMenu->name}.",
+                );
                 DB::commit();
                 $this->loadSelectedOrder();
-                session()->flash('success', 'Perubahan menu berhasil disimpan!');
+                session()->flash(
+                    "success",
+                    "Perubahan menu berhasil disimpan!",
+                );
             } catch (\Exception $e) {
                 DB::rollback();
-                session()->flash('error', 'Gagal update: ' . $e->getMessage());
+                session()->flash("error", "Gagal update: " . $e->getMessage());
             }
         }
 
         $this->closeOptionModal();
     }
 
-
     // ==========================================
     // FUNGSI PEMBAYARAN
     // ==========================================
     public function processTakeaway($paymentMethod)
     {
-        $this->validate(['customerName' => 'required|string|max:255'], ['customerName.required' => 'Nama wajib diisi!']);
-        if (empty($this->takeawayCart)) return;
+        $this->validate(
+            ["customerName" => "required|string|max:255"],
+            ["customerName.required" => "Nama wajib diisi!"],
+        );
+        if (empty($this->takeawayCart)) {
+            return;
+        }
 
         try {
             DB::beginTransaction();
 
-            $subtotal = array_sum(array_column($this->takeawayCart, 'total_price'));
-            $taxAmount = $subtotal * 0.10;
+            $subtotal = array_sum(
+                array_column($this->takeawayCart, "total_price"),
+            );
+            $taxAmount = $subtotal * 0.1;
             $totalAmount = $subtotal + $taxAmount;
-            $invoiceNumber = 'TA-' . strtoupper(Str::random(8));
+            $invoiceNumber = "TA-" . strtoupper(Str::random(8));
 
             $order = Order::create([
-                'table_id' => null, 'order_type' => 'takeaway', 'customer_name' => $this->customerName,
-                'invoice_number' => $invoiceNumber, 'subtotal' => $subtotal, 'tax_amount' => $taxAmount,
-                'total_amount' => $totalAmount, 'kitchen_status' => 'pending', 'payment_status' => 'paid',
-                'payment_method' => $paymentMethod, 'cashier_id' => auth()->id(),
+                "table_id" => null,
+                "order_type" => "takeaway",
+                "customer_name" => $this->customerName,
+                "invoice_number" => $invoiceNumber,
+                "subtotal" => $subtotal,
+                "tax_amount" => $taxAmount,
+                "total_amount" => $totalAmount,
+                "kitchen_status" => "pending",
+                "payment_status" => "paid",
+                "payment_method" => $paymentMethod,
+                "cashier_id" => auth()->id(),
             ]);
 
             foreach ($this->takeawayCart as $item) {
                 $orderItem = OrderItem::create([
-                    'order_id' => $order->id, 'menu_id' => $item['menu_id'], 'quantity' => $item['quantity'],
-                    'base_price' => $item['base_price'], 'total_price' => $item['total_price'],
-                    'notes' => $item['notes'], 'item_status' => 'pending',
+                    "order_id" => $order->id,
+                    "menu_id" => $item["menu_id"],
+                    "quantity" => $item["quantity"],
+                    "base_price" => $item["base_price"],
+                    "total_price" => $item["total_price"],
+                    "notes" => $item["notes"],
+                    "item_status" => "pending",
                 ]);
-                if (!empty($item['options'])) {
-                    foreach ($item['options'] as $opt) {
+                if (!empty($item["options"])) {
+                    foreach ($item["options"] as $opt) {
                         OrderItemOption::create([
-                            'order_item_id' => $orderItem->id, 'menu_option_item_id' => $opt['id'],
-                            'option_name' => $opt['name'], 'additional_price' => $opt['price'],
+                            "order_item_id" => $orderItem->id,
+                            "menu_option_item_id" => $opt["id"],
+                            "option_name" => $opt["name"],
+                            "additional_price" => $opt["price"],
                         ]);
                     }
                 }
@@ -347,39 +423,60 @@ class CashierDashboard extends Component
 
             DB::commit();
             $this->closeTakeawayModal();
-            $this->dispatch('print-receipt', order_id: $order->id);
-            session()->flash('success', "Takeaway {$this->customerName} lunas!");
+            $this->dispatch("print-receipt", order_id: $order->id);
+            session()->flash(
+                "success",
+                "Takeaway {$this->customerName} lunas!",
+            );
         } catch (\Exception $e) {
             DB::rollback();
         }
     }
 
-    public function payCash($id) { $this->payOrder($id, 'Cash'); }
-    public function payQRIS($id) { $this->payOrder($id, 'QRIS'); }
-    public function payDebit($id) { $this->payOrder($id, 'Debit'); }
+    public function payCash($id)
+    {
+        $this->payOrder($id, "Cash");
+    }
+    public function payQRIS($id)
+    {
+        $this->payOrder($id, "QRIS");
+    }
+    public function payDebit($id)
+    {
+        $this->payOrder($id, "Debit");
+    }
 
     public function payOrder($orderId, $paymentMethod)
     {
         $order = Order::find($orderId);
         if ($order) {
-            $order->update(['payment_status' => 'paid', 'payment_method' => $paymentMethod, 'cashier_id' => auth()->id()]);
+            $order->update([
+                "payment_status" => "paid",
+                "payment_method" => $paymentMethod,
+                "cashier_id" => auth()->id(),
+            ]);
             if ($order->table) {
-                $order->table->update(['status' => 'available', 'qr_token' => Str::random(10)]);
+                $order->table->update([
+                    "status" => "available",
+                    "qr_token" => Str::random(10),
+                ]);
             }
             $this->closeDetailModal();
-            $this->dispatch('print-receipt', order_id: $order->id);
-            session()->flash('success', "Pembayaran lunas!");
+            $this->dispatch("print-receipt", order_id: $order->id);
+            session()->flash("success", "Pembayaran lunas!");
         }
     }
 
     public function render()
     {
-        $orders = Order::with('table', 'items.selectedOptions')
-                       ->where('payment_status', 'unpaid')
-                       ->latest()
-                       ->get();
+        $orders = Order::with("table", "items.selectedOptions")
+            ->where("payment_status", "unpaid")
+            ->latest()
+            ->get();
 
-        return view('cashier.cashier-dashboard', compact('orders'))
-               ->layout('components.layouts.app');
+        return view(
+            "components.cashier.cashier-dashboard",
+            compact("orders"),
+        )->layout("components.layouts.app");
     }
 }

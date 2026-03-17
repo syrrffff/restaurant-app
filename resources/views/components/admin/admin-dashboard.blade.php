@@ -66,28 +66,28 @@
 
             <div class="space-y-4">
                 @forelse($topMenus as $index => $top)
-                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition border border-transparent hover:border-gray-100">
-                        <div class="flex items-center gap-4">
-                            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 text-sm">
-                                #{{ $index + 1 }}
-                            </div>
-
-                            <div>
-                                <h4 class="font-bold text-gray-800">{{ $top->menu->name ?? 'Menu Dihapus' }}</h4>
-                                <p class="text-xs text-gray-500">{{ $top->menu->category->name ?? 'Tanpa Kategori' }}</p>
-                            </div>
+                <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition border border-transparent hover:border-gray-100">
+                    <div class="flex items-center gap-4">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 text-sm">
+                            #{{ $index + 1 }}
                         </div>
 
-                        <div class="text-right">
-                            <span class="text-lg font-bold text-blue-600">{{ $top->total_sold }}</span>
-                            <span class="text-xs text-gray-500">Terjual</span>
+                        <div>
+                            <h4 class="font-bold text-gray-800">{{ $top->menu->name ?? 'Menu Dihapus' }}</h4>
+                            <p class="text-xs text-gray-500">{{ $top->menu->category->name ?? 'Tanpa Kategori' }}</p>
                         </div>
                     </div>
+
+                    <div class="text-right">
+                        <span class="text-lg font-bold text-blue-600">{{ $top->total_sold }}</span>
+                        <span class="text-xs text-gray-500">Terjual</span>
+                    </div>
+                </div>
                 @empty
-                    <div class="text-center py-10 text-gray-400">
-                        <div class="text-4xl mb-2">🍽️</div>
-                        <p class="text-sm">Belum ada data penjualan menu.</p>
-                    </div>
+                <div class="text-center py-10 text-gray-400">
+                    <div class="text-4xl mb-2">🍽️</div>
+                    <p class="text-sm">Belum ada data penjualan menu.</p>
+                </div>
                 @endforelse
             </div>
         </div>
@@ -97,33 +97,35 @@
 
             <div class="space-y-4">
                 @forelse($latestOrders as $order)
-                    <div class="border-l-4 {{ $order->payment_status == 'paid' ? 'border-green-500' : 'border-yellow-500' }} pl-4 py-2">
-                        <div class="flex justify-between items-start mb-1">
-                            <h4 class="font-bold text-gray-800">Meja {{ $order->table->table_number ?? '?' }}</h4>
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded {{ $order->payment_status == 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                {{ $order->payment_status == 'paid' ? 'Lunas' : 'Belum Bayar' }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-end mt-2">
-                            <div>
-                                <p class="text-xs text-gray-500 font-mono">{{ $order->invoice_number }}</p>
-                                <p class="text-xs text-gray-400">{{ $order->created_at->diffForHumans() }}</p>
-                            </div>
-                            <strong class="text-sm text-gray-800">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong>
-                        </div>
+                <div class="border-l-4 {{ $order->payment_status == 'paid' ? 'border-green-500' : 'border-yellow-500' }} pl-4 py-2">
+                    <div class="flex justify-between items-start mb-1">
+                        <h4 class="font-bold text-gray-800">
+                            {{ $order->table ? $order->table->table_number : ($order->customer_name ?? '?') }}
+                        </h4>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded {{ $order->payment_status == 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                            {{ $order->payment_status == 'paid' ? 'Lunas' : 'Belum Bayar' }}
+                        </span>
                     </div>
+                    <div class="flex justify-between items-end mt-2">
+                        <div>
+                            <p class="text-xs text-gray-500 font-mono">{{ $order->invoice_number }}</p>
+                            <p class="text-xs text-gray-400">{{ $order->created_at->diffForHumans() }}</p>
+                        </div>
+                        <strong class="text-sm text-gray-800">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong>
+                    </div>
+                </div>
                 @empty
-                    <div class="flex flex-col items-center justify-center h-48 text-gray-400">
-                        <div class="text-4xl mb-3">📝</div>
-                        <p class="text-sm text-center">Belum ada pesanan masuk.</p>
-                    </div>
+                <div class="flex flex-col items-center justify-center h-48 text-gray-400">
+                    <div class="text-4xl mb-3">📝</div>
+                    <p class="text-sm text-center">Belum ada pesanan masuk.</p>
+                </div>
                 @endforelse
             </div>
 
             @if(count($latestOrders) > 0)
-                <a href="/cashier" class="block text-center mt-5 text-sm font-bold text-blue-600 hover:text-blue-800 transition">
-                    Lihat Semua Pesanan di Kasir ➔
-                </a>
+            <a href="/cashier" class="block text-center mt-5 text-sm font-bold text-blue-600 hover:text-blue-800 transition">
+                Lihat Semua Pesanan di Kasir ➔
+            </a>
             @endif
         </div>
 

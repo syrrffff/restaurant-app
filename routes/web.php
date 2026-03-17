@@ -12,6 +12,7 @@ use App\Livewire\AdminDashboard;
 use App\Livewire\AdminTable;
 use App\Livewire\OrderHistory;
 use App\Models\Order;
+use App\Livewire\AdminUsers;
 
 
 // --- RUTE PUBLIK (Bisa diakses tanpa login) ---
@@ -27,6 +28,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/menus', AdminMenu::class);
         Route::get('/admin/tables/{id}/qr', [TableController::class, 'generateQr']);
         Route::get('/admin/tables', AdminTable::class);
+        Route::get('/admin/users', AdminUsers::class)->name('admin.users');
     });
 
     // Dapur & Admin bisa buka layar dapur
